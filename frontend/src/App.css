@@ -76,3 +76,65 @@ body {
 .govt-issues .actions button {
   margin-right: 10px;
 }
+
+.contactForm {
+  margin: 0 auto;
+  display: block;
+  width: 400px;
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 20px;
+  opacity: 75%;
+}
+
+.contactForm label {
+  display: block;
+  width: 380px;
+  padding: 5px;
+  margin-top: 30px;
+}
+
+.contactForm input {
+  display: block;
+  width: 380px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid gray;
+}
+
+.contactForm textarea {
+  display: block;
+  width: 380px;
+  height: 100px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid gray;
+}
+
+.contactForm select {
+  display: block;
+  width: 400px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid gray;
+}
+
+.contactForm button {
+  display: block;
+  margin: 40px auto;
+  width: 150px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid royalblue;
+  color: royalblue;
+  background-color: #ffffff;
+  cursor: pointer;
+}
+
+.required {
+  color: darkgoldenrod;
+}
+
+.success {
+  color: green;
+}
