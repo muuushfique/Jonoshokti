@@ -23,6 +23,9 @@ function Nav() {
         <li className="nav-item">
           <Link to="/community-service" className="nav-link">Community Service</Link>
         </li>
+        <li className="nav-item">
+          <Link to="/contact-us" className="nav-link">Contact Us</Link>
+        </li>
       </ul>
       <div className="bottom-options">
         <button className="btn btn-dark w-100">Dark Mode</button>
