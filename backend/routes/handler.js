@@ -209,5 +209,23 @@ router.put('/govt/:id', async (req, res) => {
     }
 });
 
+// Route to get issue details by issue_id
+router.get('/govtissuedetails/:id', async (req, res) => {
+    try {
+        const { id } = req.params;  // Extract issue_id from request parameters
+
+        // Find the issue by issue_id
+        const issue = await schemas.GovtIssues.findOne({ issue_id: id });
+
+        if (!issue) {
+            return res.status(404).json({ message: "Issue not found" });
+        }
+
+        res.json(issue);  // Send the fetched issue as a JSON response
+    } catch (error) {
+        console.error("Error fetching issue details:", error);
+        res.status(500).json({ message: "Error fetching issue details", error: error.message });
+    }
+});
 
 module.exports = router;

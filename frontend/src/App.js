@@ -5,7 +5,7 @@ import Tweet from './components/Tweet';
 import IssueDetails from './components/IssueDetails'
 import Contact from './components/Contact'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import GovtIssues2 from './components/govtIssues';
+import GovtIssues2 from './components/GovtIssues';
 
 function App() {
   return (
@@ -16,7 +16,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/tweets" element={<Tweet />} />
           <Route path="contact-us" element={<Contact />} />
-          <Route path="/issuedetails" element={<IssueDetails />} />
+          <Route path="/govtissuedetails/:id" element={<IssueDetails />} />
           <Route path="/govt-issues" element={<GovtIssues2 />} />
         </Routes>
       </div>
