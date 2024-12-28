@@ -5,7 +5,7 @@ import Tweet from './components/Tweet';
 import IssueDetails from './components/IssueDetails'
 import Contact from './components/Contact'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import GovtIssues2 from './components/GovtIssues';
+import GovtIssues2 from './components/govtIssues';
 
 function App() {
   return (
