@@ -144,72 +144,88 @@ router.get('/users', (req, res) => {
             "name": "Leanne Graham",
             "username": "Bret",
             "email": "Sincere@april.biz",
-            "address": {
-              "street": "Kulas Light",
-              "suite": "Apt. 556",
-              "city": "Gwenborough",
-              "zipcode": "92998-3874",
-              "geo": {
-                "lat": "-37.3159",
-                "lng": "81.1496"
-              }
-            },
             "phone": "1-770-736-8031 x56442",
             "website": "DotGovtBD",
-            "company": {
-              "name": "Romaguera-Crona",
-              "catchPhrase": "Multi-layered client-server neural-net",
-              "bs": "harness real-time e-markets"
-            }
           },
           {
             "id": 2,
             "name": "Ervin Howell",
             "username": "Antonette",
             "email": "Shanna@melissa.tv",
-            "address": {
-              "street": "Victor Plains",
-              "suite": "Suite 879",
-              "city": "Wisokyburgh",
-              "zipcode": "90566-7771",
-              "geo": {
-                "lat": "-43.9509",
-                "lng": "-34.4618"
-              }
-            },
             "phone": "010-692-6593 x09125",
             "website": "Google",
-            "company": {
-              "name": "Deckow-Crist",
-              "catchPhrase": "Proactive didactic contingency",
-              "bs": "synergize scalable supply-chains"
-            }
           },
           {
             "id": 3,
             "name": "Clementine Bauch",
             "username": "Samantha",
             "email": "Nathan@yesenia.net",
-            "address": {
-              "street": "Douglas Extension",
-              "suite": "Suite 847",
-              "city": "McKenziehaven",
-              "zipcode": "59590-4157",
-              "geo": {
-                "lat": "-68.6102",
-                "lng": "-47.0653"
-              }
-            },
-            "phone": "1-463-123-4447",
             "website": "YouTube",
-            "company": {
-              "name": "Romaguera-Jacobson",
-              "catchPhrase": "Face to face bifurcated interface",
-              "bs": "e-enable strategic applications"
-            }
           },
     ]
     res.send(userData)
 })
+
+// Route to get all govt issues
+router.get('/govt', async (req, res) => {
+    try {
+        // Fetch all documents from the govtIssues collection
+        const issues = await schemas.GovtIssues.find();
+        res.json(issues); // Send the fetched issues as a JSON response
+    } catch (error) {
+        console.error("Error fetching issues:", error);
+        res.status(500).json({ message: "Error fetching issues" });
+    }
+});
+
+
+const mongoose = require('mongoose');
+
+router.put('/govt/:id', async (req, res) => {
+    try {
+        const { id } = req.params;  // This is the issue_id (string)
+        const { upvotes, downvotes } = req.body;  
+
+        // Update by issue_id (string), not _id
+        const updatedIssue = await schemas.GovtIssues.findOneAndUpdate(
+            { issue_id: id },  // Match by issue_id instead of _id
+            {
+                $set: {
+                    issue_likes: upvotes,
+                    issue_dislikes: downvotes
+                }
+            },
+            { new: true }  // Return the updated document
+        );
+
+        if (!updatedIssue) {
+            return res.status(404).json({ message: "Issue not found" });
+        }
+
+        res.json(updatedIssue);  // Return the updated issue
+    } catch (error) {
+        console.error("Error updating the issue:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+});
+
+// Route to get issue details by issue_id
+router.get('/govtissuedetails/:id', async (req, res) => {
+    try {
+        const { id } = req.params;  // Extract issue_id from request parameters
+
+        // Find the issue by issue_id
+        const issue = await schemas.GovtIssues.findOne({ issue_id: id });
+
+        if (!issue) {
+            return res.status(404).json({ message: "Issue not found" });
+        }
+
+        res.json(issue);  // Send the fetched issue as a JSON response
+    } catch (error) {
+        console.error("Error fetching issue details:", error);
+        res.status(500).json({ message: "Error fetching issue details", error: error.message });
+    }
+});
 
 module.exports = router;

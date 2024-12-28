@@ -1,161 +1,129 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-function GovtIssues() {
-  // Initial states for upvotes, downvotes, and comments
-  const [upvotes, setUpvotes] = useState([0, 0, 0]);
-  const [downvotes, setDownvotes] = useState([0, 0, 0]);
-  const [comments, setComments] = useState([[], [], []]); // Array of arrays for comments
-  const [isCommentBoxOpen, setIsCommentBoxOpen] = useState(false);
-  const [currentIssueIndex, setCurrentIssueIndex] = useState(null);
-  const [commentText, setCommentText] = useState("");
+function GovtIssues2() {
+  const [issues, setIssues] = useState([]);
 
-  // Handlers for upvotes and downvotes
-  const handleUpvote = (index) => {
-    const newUpvotes = [...upvotes];
-    newUpvotes[index] += 1;
-    setUpvotes(newUpvotes);
-  };
+  // Fetch issues from the backend using axios
+  useEffect(() => {
+    const fetchIssues = async () => {
+      try {
+        const response = await axios.get("http://localhost:1241/govt");
+        setIssues(response.data);
+      } catch (error) {
+        console.error("Error fetching issues:", error);
+      }
+    };
 
-  const handleDownvote = (index) => {
-    const newDownvotes = [...downvotes];
-    newDownvotes[index] += 1;
-    setDownvotes(newDownvotes);
-  };
+    fetchIssues();
+  }, []);
 
-  // Handlers for comments
-  const handleOpenCommentBox = (index) => {
-    setCurrentIssueIndex(index);
-    setIsCommentBoxOpen(true);
-  };
+  // Fallback image for broken or missing URLs
+  const fallbackImage = "https://via.placeholder.com/150"; // Placeholder image
 
-  const handleAddComment = () => {
-    if (!commentText.trim()) return;
-    const newComments = [...comments];
-    newComments[currentIssueIndex].push(commentText);
-    setComments(newComments);
-    setCommentText(""); // Reset comment box
-    setIsCommentBoxOpen(false); // Close the pop-up
-  };
-
-  // Random image URLs
-  const images = [
-    "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "https://images.pexels.com/photos/414612/pexels-photo-414612.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "https://images.pexels.com/photos/1329361/pexels-photo-1329361.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-  ];
+  // Handle upvote and downvote updates
+  const handleVote = async (issueId, voteType) => {
+    try {
+      // Find the issue by its issue_id (string)
+      const issueToUpdate = issues.find(issue => issue.issue_id === issueId);
+  
+      if (!issueToUpdate) return; // If no issue is found, exit early
+  
+      // Prepare the updated vote count
+      const updatedVotes = {
+        upvotes: voteType === "upvote" ? issueToUpdate.issue_likes + 1 : issueToUpdate.issue_likes,
+        downvotes: voteType === "downvote" ? issueToUpdate.issue_dislikes + 1 : issueToUpdate.issue_dislikes
+      };
+  
+      // Optimistically update the state
+      const updatedIssues = issues.map(issue =>
+        issue.issue_id === issueId
+          ? { ...issue, issue_likes: updatedVotes.upvotes, issue_dislikes: updatedVotes.downvotes }
+          : issue
+      );
+      setIssues(updatedIssues);
+  
+      // Send the updated votes to the backend
+      const response = await axios.put(`http://localhost:1241/govt/${issueId}`, {
+        upvotes: updatedVotes.upvotes,
+        downvotes: updatedVotes.downvotes
+      });
+  
+      // Sync with backend response (optional)
+      if (response.data) {
+        const refreshedIssues = await axios.get("http://localhost:1241/govt");
+        setIssues(refreshedIssues.data);
+      }
+    } catch (error) {
+      console.error("Error updating votes:", error);
+      alert("Failed to update vote. Please try again.");
+  
+      // Rollback UI if request fails
+      const rolledBackIssues = issues.map(issue =>
+        issue.issue_id === issueId
+          ? {
+              ...issue,
+              issue_likes: voteType === "upvote" ? issue.issue_likes - 1 : issue.issue_likes,
+              issue_dislikes: voteType === "downvote" ? issue.issue_dislikes - 1 : issue.issue_dislikes
+            }
+          : issue
+      );
+      setIssues(rolledBackIssues);
+    }
+  };  
 
   return (
-    <div className="govt-issues">
-      <style>
-        {`
-      .comment-box-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-      }
-
-      .comment-box {
-        background: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        width: 400px;
-        max-width: 90%;
-      }
-    `}
-      </style>
-      <h1 className="mt-4">Government Issues</h1>
-      <div className="actions">
+    <div className="govt-issues2 container mx-auto py-6">
+      <h1 className="text-3xl font-semibold text-center mb-6">Government Issues</h1>
+      <div className="actions mb-6 flex justify-between items-center">
         <input
           type="text"
-          className="form-control mb-3"
+          className="input input-bordered w-1/3"
           placeholder="Search issues..."
           onClick={() => alert("Search functionality coming soon!")}
         />
         <button className="btn btn-outline-secondary">Filter / Sort</button>
       </div>
+
       <div className="issue-list">
-        {[1, 2, 3].map((issue, index) => (
-          <div key={index} className="issue-card card mb-3">
-            <div className="card-body d-flex">
+        {issues.map((issue) => (
+          <div key={issue.issue_id} className="issue-card card mb-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div className="card-body flex items-center p-4">
               <img
-                src={images[index % images.length]}
-                alt={`Issue ${issue}`}
-                style={{
-                  width: "150px",
-                  height: "150px",
-                  objectFit: "cover",
-                }}
-                className="mr-3"
+                src={issue.issue_image || fallbackImage}
+                alt={issue.issue_title}
+                onError={(e) => e.target.src = fallbackImage}
+                className="w-36 h-36 object-cover rounded-lg mr-4"
               />
-              <div className="content ml-3">
-                <h4>Issue Title {issue}</h4>
-                <p>
-                  Issue description: Lorem ipsum dolor sit amet, consectetur
-                  adipiscing elit. Vestibulum ante ipsum primis...
-                </p>
-                <div className="actions d-flex justify-content-between">
-                  <button
-                    className="btn btn-success"
-                    onClick={() => handleUpvote(index)}
-                  >
-                    Upvote Count: {upvotes[index]}
-                  </button>
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => handleDownvote(index)}
-                  >
-                    Downvote Count: {downvotes[index]}
-                  </button>
-                  <button
-                    className="btn btn-info"
-                    onClick={() => handleOpenCommentBox(index)}
-                  >
-                    Comments [{comments[index].length}]
-                  </button>
-                  <button className="btn btn-warning">Location</button>
+              <div className="content ml-4 flex-1">
+                <h4 className="text-xl font-semibold text-blue-600 mb-2">{issue.issue_title}</h4>
+                <p className="text-sm text-gray-700 mb-4">{issue.issue_status}</p>
+                <div className="actions flex justify-between items-center">
+                  <div className="flex gap-4">
+                    <button 
+                      className="btn btn-success"
+                      onClick={() => handleVote(issue.issue_id, "upvote")}
+                    >
+                      {issue.issue_likes} Upvotes
+                    </button>
+                    <button 
+                      className="btn btn-error"
+                      onClick={() => handleVote(issue.issue_id, "downvote")}
+                    >
+                      {issue.issue_dislikes} Downvotes
+                    </button>
+                    <button className="btn btn-info">Comments (0)</button>
+                    <button className="btn btn-warning">Location: N/A</button>
+                  </div>
+                  <div></div>
                 </div>
               </div>
             </div>
           </div>
         ))}
       </div>
-
-      {/* Comment Pop-up Box */}
-      {isCommentBoxOpen && (
-        <div className="comment-box-overlay">
-          <div className="comment-box">
-            <h4>Add Comment</h4>
-            <textarea
-              className="form-control mb-2"
-              rows="3"
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Enter your comment..."
-            ></textarea>
-            <div className="d-flex justify-content-between">
-              <button className="btn btn-primary" onClick={handleAddComment}>
-                Submit
-              </button>
-              <button
-                className="btn btn-secondary"
-                onClick={() => setIsCommentBoxOpen(false)}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
-export default GovtIssues;
+export default GovtIssues2;
