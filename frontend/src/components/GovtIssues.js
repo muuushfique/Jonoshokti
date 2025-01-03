@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 function GovtIssues2() {
   const [issues, setIssues] = useState([]);
+  const [comment, setComment] = useState(""); // Added for new comment functionality
 
   // Fetch issues from the backend using axios
   useEffect(() => {
@@ -21,6 +22,23 @@ function GovtIssues2() {
 
   // Fallback image for broken or missing URLs
   const fallbackImage = "https://via.placeholder.com/150"; // Placeholder image
+
+  // Handle posting a comment
+  const handleComment = async (issueId) => {
+    try {
+      const response = await axios.post(`http://localhost:1241/comments/${issueId}`, {
+        comment,
+      });
+
+      if (response.data) {
+        alert("Comment added successfully!");
+        setComment(""); // Clear the input after posting
+      }
+    } catch (error) {
+      console.error("Error posting comment:", error);
+      alert("Failed to post comment. Please try again.");
+    }
+  };
 
   // Handle upvote and downvote updates
   const handleVote = async (issueId, voteType) => {
@@ -102,7 +120,8 @@ function GovtIssues2() {
           type="text"
           className="input input-bordered w-1/3"
           placeholder="Search issues..."
-          onClick={() => alert("Search functionality coming soon!")}
+          value={comment}
+          onChange={(e) => setComment(e.target.value)} // Capture comment input
         />
         <button className="btn btn-outline-secondary">Filter / Sort</button>
       </div>
@@ -143,8 +162,12 @@ function GovtIssues2() {
                     >
                       {issue.issue_dislikes} Downvotes
                     </button>
-                    <button className="btn btn-info">Comments (0)</button>
-                    <button className="btn btn-warning">Location: N/A</button>
+                    <button
+                      className="btn btn-info"
+                      onClick={() => handleComment(issue.issue_id)}
+                    >
+                      Post Comment
+                    </button>
                   </div>
                   <div></div>
                 </div>
