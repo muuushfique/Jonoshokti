@@ -228,4 +228,92 @@ router.get('/govtissuedetails/:id', async (req, res) => {
     }
 });
 
+//for homepage
+
+// Government Issues
+router.get('/hm/govtissues', async (req, res) => {
+    try {
+        const totalIssues = await schemas.GovtIssues.countDocuments();
+        const inProgressIssues = await schemas.GovtIssues.countDocuments({ issue_status: "In Progress" });
+
+        res.json({
+            total: totalIssues,
+            inProgress: inProgressIssues
+        });
+    } catch (error) {
+        console.error("Error fetching government issues:", error);
+        res.status(500).json({ message: "Error fetching government issues" });
+    }
+});
+
+
+// Current Issues
+router.get('/hm/currentIssues', async (req, res) => {
+    try {
+        const totalIssues = await schemas.Issue.countDocuments();
+        const inProgressIssues = await schemas.Issue.countDocuments({ issue_status: "In Progress" });
+
+        res.json({
+            total: totalIssues,
+            inProgress: inProgressIssues
+        });
+    } catch (error) {
+        console.error("Error fetching current issues:", error);
+        res.status(500).json({ message: "Error fetching current issues" });
+    }
+});
+
+// Solved Issues
+router.get('/hm/solvedIssues', async (req, res) => {
+    try {
+        const solvedIssues = await schemas.Issue.countDocuments({ issue_status: "Solved" });
+
+        res.json({
+            total: solvedIssues
+        });
+    } catch (error) {
+        console.error("Error fetching solved issues:", error);
+        res.status(500).json({ message: "Error fetching solved issues" });
+    }
+});
+
+router.get('/search', async (req, res) => {
+    const { title } = req.query;
+    try {
+        const issues = await schemas.GovtIssues.find({ issue_title: { $regex: title, $options: 'i' } });
+        res.json(issues);
+    } catch (error) {
+        console.error("Error searching issues:", error);
+        res.status(500).json({ message: "Error searching issues" });
+    }
+});
+
+router.post('/comments/:id', async (req, res) => {
+    const { id } = req.params;
+    const { comment } = req.body;
+  
+    try {
+      const issue = await schemas.GovtIssues.findOne({ issue_id: id });
+  
+      if (!issue) {
+        return res.status(404).json({ message: "Issue not found" });
+      }
+  
+      // Add the comment to the issue
+      if (!issue.comments) {
+        issue.comments = [];
+      }
+  
+      issue.comments.push({ text: comment, date: new Date() });
+      await issue.save();
+  
+      res.json({ message: "Comment added successfully!" });
+    } catch (error) {
+      console.error("Error adding comment:", error);
+      res.status(500).json({ message: "Failed to add comment" });
+    }
+  });
+  
+
+
 module.exports = router;
