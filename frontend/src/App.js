@@ -17,7 +17,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/tweets" element={<Tweet />} />
           <Route path="contact-us" element={<Contact />} />
-          <Route path="/govtissuedetails/:id" element={<IssueDetails />} />
+          <Route path="/govtissuedetail/:id" element={<IssueDetails />} />
           <Route path="/govt-issues" element={<GovtIssues2 />} />
         </Routes>
       </div>

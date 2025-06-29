@@ -23,7 +23,7 @@ function GovtIssues2() {
   // Fallback image for broken or missing URLs
   const fallbackImage = "https://via.placeholder.com/150"; // Placeholder image
 
-  // Handle posting a comment
+  // Handle posting a comment such
   const handleComment = async (issueId) => {
     try {
       const response = await axios.post(`http://localhost:1241/comments/${issueId}`, {

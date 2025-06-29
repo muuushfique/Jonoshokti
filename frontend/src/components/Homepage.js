@@ -25,7 +25,7 @@ function HomePage() {
         const solvedResponse = await axios.get("http://localhost:1241/hm/solvedIssues");
         const { total: solvedTotal } = solvedResponse.data;
 
-        // Update the stats state
+        // Update the stats states
         setStats({
           currentIssues: { total: currentTotal, inProgress: currentInProgress },
           govtIssues: { total: govtTotal, inProgress: govtInProgress },

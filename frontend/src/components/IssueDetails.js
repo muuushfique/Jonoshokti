@@ -25,7 +25,7 @@ function IssueDetails() {
     fetchIssue();
   }, [id]);
 
-  // Handle upvote and downvote updates
+  // Handle upvote and downvote update
   const handleVote = async (voteType) => {
     if (!issue) return;
 
