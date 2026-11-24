@@ -1,36 +1,19 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const routesHandler = require('./routes/handler.js');
-const mongoose = require('mongoose');
-require('dotenv/config');
-const cors = require('cors')
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
+const app = require('./app');
+const connectDB = require('./db');
 
-const app = express();
-app.use(bodyParser.urlencoded({extended:false}));
-app.use(bodyParser.json());
+const PORT = process.env.PORT || 1241;
 
-const corsOptions = {
-    origin: '*',
-    credentials: true,
-    optionSuccessStatus: 200
-}
+connectDB()
+  .then(() => {
+    console.log('MongoDB connected.');
+  })
+  .catch((err) => {
+    console.error('Initial MongoDB connection failed:', err.message);
+  });
 
-app.use(cors(corsOptions))
-app.use('/', routesHandler)
-
-const PORT = process.env.PORT
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}.`);
+  console.log(`Jonoshokti API running on http://localhost:${PORT}`);
 });
-
-//MongoDB Connection
-const dbOptions = {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  };
-mongoose.connect(process.env.DB_URI, dbOptions)
-.then(() => console.log('DB Connected!'))
-.catch(err => {
-    console.log('Cannot connect to DB');
-})
